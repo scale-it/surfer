@@ -97,26 +97,25 @@ func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !this.Prepare() {
-		return
-	}
-	switch req.Method {
-	case "GET":
-		this.Get()
-	case "POST":
-		this.Post()
-	case "HEAD":
-		this.Head()
-	case "DELETE":
-		this.Delete()
-	case "PUT":
-		this.Put()
-	case "PATCH":
-		this.Patch()
-	case "OPTIONS":
-		this.Options()
-	default:
-		panic("Implementation Error. This shouldn't be accessiable")
+	if this.Prepare() {
+		switch req.Method {
+		case "GET":
+			this.Get()
+		case "POST":
+			this.Post()
+		case "HEAD":
+			this.Head()
+		case "DELETE":
+			this.Delete()
+		case "PUT":
+			this.Put()
+		case "PATCH":
+			this.Patch()
+		case "OPTIONS":
+			this.Options()
+		default:
+			panic("Implementation Error. This shouldn't be accessiable")
+		}
 	}
 
 	if this.state < states.rendered {
