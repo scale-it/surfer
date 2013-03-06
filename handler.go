@@ -4,15 +4,24 @@ import (
 	"net/http"
 )
 
+type statet int8
+
+var states = struct {
+	rendered statet
+	finished statet
+}{1, 2}
+
+
 type Handler struct {
 	app      *App
-	Template *Template
-	Session  *Session
+	//Template *Template
+	//Session  *Session
+	template string
 	Response http.ResponseWriter
 	Request  *http.Request
 	Data     map[interface{}]interface{} // data for template
 	Params   map[string]string
-	finished bool
+	state statet
 }
 
 type SurferHandler interface {
@@ -24,16 +33,19 @@ type SurferHandler interface {
 	Put()
 	Patch()
 	Options()
-	Prepare()
+	Prepare() bool
+	Finish()
 	Render()
 }
 
-func (this *SurferHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	this.Response = rw
 	this.Request = req
 
-	this.Prepare()
-	switch r.Method {
+	if !this.Prepare() {
+		return
+	}
+	switch req.Method {
 	case "GET":
 		this.Get()
 	case "POST":
@@ -52,15 +64,59 @@ func (this *SurferHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) 
 		// TODO 405 Error, Method Not Allowed
 	}
 
-	if !this.finished {
+	if this.state < states.rendered {
 		this.Render()
+	}
+	if this.state < states.finished {
+		this.Finish()
 	}
 
 }
 
-func (this *SurferHandler) Get() {
+func (this *Handler) Prepare() bool {
+	return true
+}
+
+func (this *Handler) Finish() bool {
+	return true
+}
+
+func (this *Handler) Render() {
+	// validate template against header accept
+	// render based on template (filename, "json"...) and this.Data
+	// set state
+}
+
+func (this *Handler) Get() {
 	// TODO 405 Error, Method Not Allowed
 }
+
+func (this *Handler) Post() {
+	// TODO 405 Error, Method Not Allowed
+}
+
+func (this *Handler) Head() {
+	// TODO 405 Error, Method Not Allowed
+}
+
+func (this *Handler) Delete() {
+	// TODO 405 Error, Method Not Allowed
+}
+
+func (this *Handler) Put() {
+	// TODO 405 Error, Method Not Allowed
+}
+
+func (this *Handler) Patch() {
+	// TODO 405 Error, Method Not Allowed
+}
+
+func (this *Handler) Options() {
+	// TODO 405 Error, Method Not Allowed
+}
+
+
+
 
 // HandleFunc registers a new route with a matcher for the URL path.
 // See Route.Path() and Route.HandlerFunc().
