@@ -15,16 +15,20 @@ Objectives
   * Focus how to easily extend Surfer components to utilize third parties libraries, like: DB drivers, DB ORMs, template languages, session storages...
 
 
-Requirements
+Installation
 ============
 
-::
+Requirements ::
 
-    go get github.com/gorilla/securecookie
-    go get github.com/gorilla/sessions
-    go get github.com/gorilla/mux
-    go get github.com/kylelemons/go-gypsy/yaml
-    go get github.com/scale-it/clog
+    go get -u github.com/gorilla/securecookie
+    go get -u github.com/gorilla/sessions
+    go get -u github.com/gorilla/mux
+    go get -u github.com/kylelemons/go-gypsy/yaml
+    go get -u github.com/scale-it/clog
+
+Install::
+
+    go get -u github.com/scale-it/surfer
 
 
 
@@ -36,7 +40,7 @@ To practice, to create something extra. Exsting go web frameworks don't meet obj
 Differences from `Beego <http://astaxie.github.com/beego>`_
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-I'am opposit to use *reflective* package whenever it is possible. Beego's routing relay on this. Besides it uses own routing implementation, where there is *gorilla.mux* which is much more usefull.
+I'am opposit to use *reflective* package whenever it is possible. Beego's routing relay on this. Besides this, it uses own routing implementation. There is *gorilla.mux* which is much more usefull.
 
 Differences from `Revel <http://robfig.github.com/revel>`_
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

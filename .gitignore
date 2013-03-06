@@ -21,4 +21,7 @@ _testmain.go
 
 *.exe
 
+# submodule
+.gitmodules
+wiki
 TODO
