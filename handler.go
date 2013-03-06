@@ -1,6 +1,7 @@
 package surfer
 
 import (
+	"github.com/gorilla/securecookie"
 	"mime"
 	"net/http"
 	"strconv"
@@ -17,14 +18,14 @@ var states = struct {
 var valid_methods = map[string]bool{"GET": true, "POST": true, "HEAD": true, "DELETE": true, "PUT": true, "PATCH": true, "OPTIONS": true}
 
 type Handler struct {
-	app *App
+	App *App
 	//Template *Template
-	template string
-	Response http.ResponseWriter
-	Request  *http.Request
-	Data     map[interface{}]interface{} // data for template
-	Params   map[string]string
-	state    statet
+	template  string // template name to render, when accept is text/html
+	Response  http.ResponseWriter
+	Request   *http.Request
+	Data      map[interface{}]interface{} // data for template
+	state     statet
+	SecCookie *securecookie.SecureCookie
 }
 
 type SurferHandler interface {
