@@ -1,6 +1,7 @@
 package surfer
 
 import (
+	"mime"
 	"net/http"
 )
 
@@ -16,7 +17,6 @@ var valid_methods = map[string]bool{"GET": true, "POST": true, "HEAD": true, "DE
 type Handler struct {
 	app *App
 	//Template *Template
-	//Session  *Session
 	template string
 	Response http.ResponseWriter
 	Request  *http.Request
@@ -40,11 +40,11 @@ type SurferHandler interface {
 }
 
 func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	this.Response = rw
+	this.RW = rw
 	this.Request = req
 
 	if !valid_methods[req.Method] {
-		return // TODO 405
+		return http.Error(c.Ctx.Response, "Method Not Allowed", 405)
 	}
 
 	if !this.Prepare() {
@@ -66,7 +66,8 @@ func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	case "OPTIONS":
 		this.Options()
 	default:
-		// TODO 405 Error, Method Not Allowed
+		panic("Implementation Error. This shouldn't be accessiable")
+		return http.Error(this.Response, "Method Not Allowed", 405)
 	}
 
 	if this.state < states.rendered {
@@ -93,29 +94,54 @@ func (this *Handler) Render() {
 }
 
 func (this *Handler) Get() {
-	// TODO 405 Error, Method Not Allowed
+	http.Error(this.Response, "Method Not Allowed", 405)
 }
 
 func (this *Handler) Post() {
-	// TODO 405 Error, Method Not Allowed
+	http.Error(this.Response, "Method Not Allowed", 405)
 }
 
 func (this *Handler) Head() {
-	// TODO 405 Error, Method Not Allowed
+	http.Error(this.Response, "Method Not Allowed", 405)
 }
 
 func (this *Handler) Delete() {
-	// TODO 405 Error, Method Not Allowed
+	http.Error(this.Response, "Method Not Allowed", 405)
 }
 
 func (this *Handler) Put() {
-	// TODO 405 Error, Method Not Allowed
+	http.Error(this.Response, "Method Not Allowed", 405)
 }
 
 func (this *Handler) Patch() {
-	// TODO 405 Error, Method Not Allowed
+	http.Error(this.Response, "Method Not Allowed", 405)
 }
 
 func (this *Handler) Options() {
-	// TODO 405 Error, Method Not Allowed
+	http.Error(this.Response, "Method Not Allowed", 405)
+}
+
+// HELPER FUNCTIONS
+
+// Redirect to different `url` with `status`
+func (this *Handler) Redirect(status int, url string) {
+	this.Response.Header().Set("Location", url_)
+	ctx.ResponseWriter.WriteHeader(status)
+}
+
+// Redirect to different `url` with standard HTTP status code: 404
+func (this *Handler) RedirectUrl(url string) {
+	this.Redirect(302, url)
+}
+
+//Sets the content type by extension, as defined in the mime package.
+//For example, xgoContext.ContentType("json") sets the content-type to "application/json"
+func (this *Handler) SetContentType(ctype string) {
+	if !strings.HasPrefix(ctype, ".") {
+		ctype = "." + ext
+	}
+	ctype := mime.TypeByExtension(ctype)
+	if ctype != "" {
+		this.Response.Header().Set("Content-Type", ctype)
+	}
 }
