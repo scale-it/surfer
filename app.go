@@ -14,10 +14,11 @@ import (
 type App struct {
 	Config   *yaml.File
 	Router   *mux.Router
-	Log   *clog.Clog
+	Log      *clog.Clog
 	listener net.Listener
 }
 
+// Creates new surfer application.
 func New() App {
 	config, err := yaml.ReadFile("config.yaml")
 	if err != nil {
@@ -37,6 +38,7 @@ func New() App {
 	return App{config, mux.NewRouter(), log, nil}
 }
 
+// Blocks current gorotine and runs web server.
 func (this App) Run() {
 	addr, err := this.Config.Get("server.addr")
 	if err != nil {
@@ -75,6 +77,8 @@ func (this App) Run() {
 	}
 }
 
+// Stops web server.
 func (this App) Stop() {
 	this.listener.Close()
+	this.Log.Info("server stopped")
 }
