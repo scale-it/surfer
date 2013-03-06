@@ -1,6 +1,7 @@
 package surfer
 
 import (
+	"encoding/json"
 	"github.com/gorilla/securecookie"
 	"mime"
 	"net/http"
@@ -153,9 +154,20 @@ func (this *Handler) Render() {
 	// render based on template (filename, "json"...) and this.Data
 	switch mt {
 	case "application/json":
-		// TODO: send out json
+		content, err := json.Marshal(this.Data)
+		if err != nil {
+			this.App.Log.Error("%s, %v", this.Request.URL.Path, err.Error())
+			http.Error(this.Response, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		this.Response.Header().Set("Content-Length", strconv.Itoa(len(content)))
+		this.Response.Write(content)
+		this.SetContentType(mt)
+		// TODO: check if it is OK
+
 	case "text/html":
 		if this.template == "" {
+			this.App.Log.Fatal("%s, Trying to render template, but it was not set", this.Request.URL.Path)
 			// TODO: fall back to json? or crash in production?
 		}
 		// TODO: render template
