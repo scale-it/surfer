@@ -2,6 +2,8 @@ package surfer
 
 import (
 	"net/http"
+	"strings"
+	"strconv"
 )
 
 type statet int8
@@ -36,6 +38,52 @@ type SurferHandler interface {
 	Prepare() bool
 	Finish()
 	Render()
+}
+
+
+// Gets the quality of media-type of the form foo/bar;q=XYZ
+func getMtQual(mediatype string) (string, float64, error) {
+	tp, par, err := mime.ParseMediaType(mediatype)
+	if err != nil {
+		return "", 0, err
+	}
+	q, err := strconv.ParseFloat(par["q"], 32)
+	if err != nil {
+		q = 1
+	}
+	// we can't get an error here: omitting the quality means q=1
+	return tp, q, nil
+}
+
+// prelimimary implementation of mediatype parsing, this _should_ work
+func selectMediaType(accept string) string {
+	// TODO: this shouldn't be hard coded
+	var supported = [3]string{"application/json","text/html","application/xml"}
+	accepted := strings.Split(mediatype, ",")
+
+	bestmime := ""
+	bestqual := 1.0
+	for _, acc := range accepted {
+		tp, q, err := getMtQual(acc)
+		if err != nil {
+			continue
+		}
+
+		if bestmime == "" || q > bestqual {
+			for _, mt := range supported {
+				if mt == acc {
+					bestmime = tp
+					bestqual = q
+					break
+				}
+			}
+		}
+	}
+	if bestmime != "" {
+		return bestmime
+	}
+	// We should consider returning nil here
+	return supported[0]
 }
 
 func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
