@@ -78,13 +78,18 @@ func (this *Handler) Prepare() bool {
 }
 
 func (this *Handler) Finish() bool {
+	this.state = states.finished
 	return true
 }
 
 func (this *Handler) Render() {
+	this.state = states.rendered
+	if this.data == nil {
+		// todo: convert status 200 -> 204 No Content
+		return;
+	}
 	// validate template against header accept
 	// render based on template (filename, "json"...) and this.Data
-	// set state
 }
 
 func (this *Handler) Get() {
