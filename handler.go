@@ -136,8 +136,24 @@ func (this *Handler) Render() {
 		// todo: convert status 200 -> 204 No Content
 		return;
 	}
-	// validate template against header accept
+
+	// Find the best media-type by looking at the first item of
+	// intersection of the Accept and Supported sets.
+	mt := selectMediaType(Request.Header["Accept"])
+
 	// render based on template (filename, "json"...) and this.Data
+	switch mt {
+	case "application/json":
+		// TODO: send out json
+	case "text/html":
+		if this.template == nil {
+			// TODO: fall back to json? or crash in production?
+		}
+		// TODO: render template
+	default:
+		// We need to look at what's a resonable default
+		// output, probably HTML.
+	}
 }
 
 func (this *Handler) Get() {
