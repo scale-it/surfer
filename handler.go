@@ -146,6 +146,9 @@ func (this *Handler) Render() {
 	// intersection of the Accept and Supported sets.
 	mt := selectMediaType(this.Request.Header.Get("Accept"))
 
+	// Set the content type based on the accept header
+	this.SetContentType(mt)
+
 	// render based on template (filename, "json"...) and this.Data
 	switch mt {
 	case "application/json":
