@@ -13,9 +13,10 @@ var states = struct {
 	finished statet
 }{1, 2}
 
+var valid_methods = map[string]bool{"GET": true, "POST": true, "HEAD": true, "DELETE": true, "PUT": true, "PATCH": true, "OPTIONS": true}
 
 type Handler struct {
-	app      *App
+	app *App
 	//Template *Template
 	//Session  *Session
 	template string
@@ -23,7 +24,7 @@ type Handler struct {
 	Request  *http.Request
 	Data     map[interface{}]interface{} // data for template
 	Params   map[string]string
-	state statet
+	state    statet
 }
 
 type SurferHandler interface {
@@ -89,6 +90,10 @@ func selectMediaType(accept string) string {
 func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	this.Response = rw
 	this.Request = req
+
+	if !valid_methods[req.Method] {
+		return // TODO 405
+	}
 
 	if !this.Prepare() {
 		return
@@ -183,13 +188,3 @@ func (this *Handler) Patch() {
 func (this *Handler) Options() {
 	// TODO 405 Error, Method Not Allowed
 }
-
-
-
-
-// HandleFunc registers a new route with a matcher for the URL path.
-// See Route.Path() and Route.HandlerFunc().
-// func (r *mux.Router) HandleCtx(path string, f func(http.ResponseWriter,
-// 	*http.Request)) *Route {
-// 	return r.NewRoute().Path(path).HandlerFunc(f)
-// }
