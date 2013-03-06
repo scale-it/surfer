@@ -138,7 +138,7 @@ func (this *Handler) Finish() bool {
 func (this *Handler) Render() {
 	this.state = states.rendered
 	if this.Data == nil {
-		// todo: convert status 200 -> 204 No Content
+		this.Response.WriteHeader(http.StatusNoContent)
 		return
 	}
 
