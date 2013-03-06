@@ -199,7 +199,7 @@ func (this *Handler) Redirect(status int, url string) {
 
 // Redirect to different `url` with standard HTTP status code: 404
 func (this *Handler) RedirectUrl(url string) {
-	this.Redirect(302, url)
+	this.Redirect(http.StatusFound, url)
 }
 
 //Sets the content type by extension, as defined in the mime package.
