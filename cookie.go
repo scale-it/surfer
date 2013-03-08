@@ -38,6 +38,11 @@ func (this *Handler) GetCookie(name string) (v interface{}, err error) {
 	return
 }
 
+// Delete cookie specified by `name`
+func ClearCookie(name string) {
+	set_cookie(name, "", -3600*24*365) // Set the cookie expires one year ago
+}
+
 // Sets a secure cookie. Befor using this function you need to initialise Handler.SecCookie value
 // using securecookie.New function.
 // Duration is the amount of time in seconds. 0 = browser defaults
