@@ -212,7 +212,7 @@ func (this *Handler) Redirect(status int, url string) {
 	this.Response.WriteHeader(status)
 }
 
-// Redirect to different `url` with standard HTTP status code: 404
+// Redirect to different `url` with Found HTTP status code: 302
 func (this *Handler) RedirectUrl(url string) {
 	this.Redirect(http.StatusFound, url)
 }

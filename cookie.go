@@ -6,8 +6,7 @@ import (
 	"time"
 )
 
-// Sets a cookie. Duration is the amount of time in seconds. 0 = browser defaults
-func (this *Handler) SetCookie(name string, value string, expires int64) {
+func set_cookie(h *Handler, name string, value string, expires int64) {
 	cookie := &http.Cookie{
 		Name:  name,
 		Value: value,
@@ -17,15 +16,26 @@ func (this *Handler) SetCookie(name string, value string, expires int64) {
 		d := time.Duration(expires) * time.Second
 		cookie.Expires = time.Now().Add(d)
 	}
-	http.SetCookie(this.Response, cookie)
+	http.SetCookie(h.Response, cookie)
 }
 
-func (this *Handler) GetCookie(name string) (string, error) {
+// Sets a cookie. Duration is the amount of time in seconds. 0 = browser defaults
+func (this *Handler) SetCookie(name string, value interface{}, expires int64) error {
+	b, err := serialize(value)
+	if err != nil {
+		return err
+	}
+	set_cookie(this, name, string(b), expires)
+	return nil
+}
+
+func (this *Handler) GetCookie(name string) (v interface{}, err error) {
 	cookie, err := this.Request.Cookie(name)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return cookie.Value, nil
+	err = deserialize([]byte(cookie.Value), v)
+	return
 }
 
 // Sets a secure cookie. Befor using this function you need to initialise Handler.SecCookie value
@@ -38,8 +48,8 @@ func (this *Handler) SetSecureCookie(name string, value interface{}, expires int
 		this.App.Log.Fatal(err.Error())
 		return
 	}
-	if encoded, err := this.SecCookie.Encode(name, value); err != nil {
-		this.SetCookie(name, encoded, expires)
+	if b, err := this.SecCookie.Encode(name, value); err != nil {
+		set_cookie(this, name, b, expires)
 	}
 	return
 }
