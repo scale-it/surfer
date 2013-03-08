@@ -43,51 +43,37 @@ type SurferHandler interface {
 	Render()
 }
 
-// Gets the quality of media-type of the form foo/bar;q=XYZ
-func getMtQual(mediatype string) (string, float64, error) {
-	tp, par, err := mime.ParseMediaType(mediatype)
-	if err != nil {
-		return "", 0, err
-	}
-	q, err := strconv.ParseFloat(par["q"], 32)
-	if err != nil {
-		q = 1
-	}
-	// we can't get an error here: omitting the quality means q=1
-	return tp, q, nil
+// Implement any of the following methods to handle the corresponding HTTP method.
+
+func (this *Handler) Get() {
+	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
 }
 
-// prelimimary implementation of mediatype parsing, this _should_ work
-func selectMediaType(accept string) string {
-	// TODO: this shouldn't be hard coded
-	var supported = [3]string{"application/json", "text/html", "application/xml"}
-	accepted := strings.Split(accept, ",")
-
-	bestmime := ""
-	bestqual := 1.0
-	for _, acc := range accepted {
-		tp, q, err := getMtQual(acc)
-		if err != nil {
-			continue
-		}
-
-		if bestmime == "" || q > bestqual {
-			for _, mt := range supported {
-				if mt == acc {
-					bestmime = tp
-					bestqual = q
-					break
-				}
-			}
-		}
-	}
-	if bestmime != "" {
-		return bestmime
-	}
-	// We should consider returning nil here
-	return supported[0]
+func (this *Handler) Post() {
+	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
 }
 
+func (this *Handler) Head() {
+	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
+}
+
+func (this *Handler) Delete() {
+	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
+}
+
+func (this *Handler) Put() {
+	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
+}
+
+func (this *Handler) Patch() {
+	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
+}
+
+func (this *Handler) Options() {
+	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
+}
+
+// Implementation of html.Handler interface
 func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	this.Response = rw
 	this.Request = req
@@ -114,7 +100,7 @@ func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		case "OPTIONS":
 			this.Options()
 		default:
-			panic("Implementation Error. This shouldn't be accessiable")
+			panic("Implementation Error. This shouldn't be accessible")
 		}
 	}
 
@@ -124,19 +110,24 @@ func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if this.state < states.finished {
 		this.Finish()
 	}
-
 }
 
+// This is most useful in a your base Handler. Override this method to perform common initialization regardless of the request method.
+// Prepare is called no matter which HTTP method is used. prepare may produce output. If it calls Finish, processing stops here.
 func (this *Handler) Prepare() bool {
 	return true
 }
 
+// Override this method to perform cleanup, logging, etc.
+// This method is a counterpart to prepare. Finish may not produce any output, as it is called after the response has been sent to the client.
 func (this *Handler) Finish() bool {
 	this.state = states.finished
 	return true
 }
 
+// You probably won't overwrite this method. Better thing about Finish method.
 func (this *Handler) Render() {
+	// TODO check if html.Error wasn't called
 	this.state = states.rendered
 	if this.Data == nil {
 		this.Response.WriteHeader(http.StatusNoContent)
@@ -176,35 +167,7 @@ func (this *Handler) Render() {
 	}
 }
 
-func (this *Handler) Get() {
-	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
-}
-
-func (this *Handler) Post() {
-	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
-}
-
-func (this *Handler) Head() {
-	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
-}
-
-func (this *Handler) Delete() {
-	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
-}
-
-func (this *Handler) Put() {
-	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
-}
-
-func (this *Handler) Patch() {
-	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
-}
-
-func (this *Handler) Options() {
-	http.Error(this.Response, "Method Not Allowed", http.StatusMethodNotAllowed)
-}
-
-// HELPER FUNCTIONS
+// HELPER FUNCTIONS ------------------------------------------
 
 // Redirect to different `url` with `status`
 func (this *Handler) Redirect(status int, url string) {
@@ -227,4 +190,48 @@ func (this *Handler) SetContentType(ctype string) {
 	if ctype != "" {
 		this.Response.Header().Set("Content-Type", ctype)
 	}
+}
+
+// Gets the quality of media-type of the form foo/bar;q=XYZ
+func getMtQual(mediatype string) (string, float64, error) {
+	tp, par, err := mime.ParseMediaType(mediatype)
+	if err != nil {
+		return "", 0, err
+	}
+	q, err := strconv.ParseFloat(par["q"], 32)
+	if err != nil {
+		q = 1
+	}
+	// we can't get an error here: omitting the quality means q=1
+	return tp, q, nil
+}
+
+// prelimimary implementation of mediatype parsing, this _should_ work
+func selectMediaType(accept string) string {
+	// TODO: this shouldn't be hard coded
+	var supported = [3]string{"application/json", "text/html", "application/xml"}
+	accepted := strings.Split(accept, ",")
+	bestmime := ""
+	bestqual := 1.0
+	for _, acc := range accepted {
+		tp, q, err := getMtQual(acc)
+		if err != nil {
+			continue
+		}
+
+		if bestmime == "" || q > bestqual {
+			for _, mt := range supported {
+				if mt == acc {
+					bestmime = tp
+					bestqual = q
+					break
+				}
+			}
+		}
+	}
+	if bestmime != "" {
+		return bestmime
+	}
+	// We should consider returning nil here
+	return supported[0]
 }
