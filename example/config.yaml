@@ -1,3 +1,9 @@
 server:
   addr: 127.0.0.1
   port: 8000
+
+app:
+  cookie_secret: ""  # this must be set if using secure cookies
+  debug: true
+  static_path: ""    # not used by now
+  static_url_prefix: "/static/"  # will be used by static caching
