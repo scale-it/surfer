@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-
 type statet int8
 
 var states = struct {
