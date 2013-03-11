@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func set_cookie(h *Handler, name string, value string, expires int64) {
+func set_cookie(h *Handler, name, value string, expires int64) {
 	cookie := &http.Cookie{
 		Name:  name,
 		Value: value,
@@ -39,8 +39,8 @@ func (this *Handler) GetCookie(name string) (v interface{}, err error) {
 }
 
 // Delete cookie specified by `name`
-func ClearCookie(name string) {
-	set_cookie(name, "", -3600*24*365) // Set the cookie expires one year ago
+func (this *Handler) ClearCookie(name string) {
+	set_cookie(this, name, "", -3600*24*365) // Set the cookie expires one year ago
 }
 
 // Sets a secure cookie. Befor using this function you need to initialise Handler.SecCookie value
