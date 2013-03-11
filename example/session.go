@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/scale-it/surfer"
-	"time"
 )
 
 type SessionHandler struct {
@@ -17,6 +16,4 @@ type Index struct {
 func main() {
 	app := surfer.New()
 	app.Run()
-	time.Sleep(time.Second / 4)
-
 }
