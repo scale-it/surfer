@@ -1,5 +1,5 @@
 /* Example application
- * Demonstration of Function Router pattern
+ * Demonstration of Function Context pattern
  * It runs a server which handle /index path and stores the number of visits in a context view
  * run by 'go run function_pattern.go' and launch in browser: http://127.0.0.1:8000/index
  */
