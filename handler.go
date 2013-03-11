@@ -108,7 +108,11 @@ func (this *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		this.Render()
 	}
 	if this.state < states.finished {
-		this.Finish()
+		if !this.Finish() {
+			// If finish fails we need to ensure that we don't leave anything hanging
+			this.App.Log.Error("%s, Handler.Finish returned false.", this.Request.URL.Path)
+			http.Error(rw, "Internal Server Error", http.StatusInternalServerError)
+		}
 	}
 }
 
