@@ -9,11 +9,11 @@ import (
 	"strings"
 )
 
-type statet int8
+type stateT int8
 
 var states = struct {
-	rendered statet
-	finished statet
+	rendered stateT
+	finished stateT
 }{1, 2}
 
 var valid_methods = map[string]bool{"GET": true, "POST": true, "HEAD": true, "DELETE": true, "PUT": true, "PATCH": true, "OPTIONS": true}
@@ -25,7 +25,7 @@ type Handler struct {
 	Response  http.ResponseWriter
 	Request   *http.Request
 	Data      map[interface{}]interface{} // data for template
-	state     statet
+	state     stateT
 	SecCookie *securecookie.SecureCookie
 }
 
