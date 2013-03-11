@@ -68,7 +68,7 @@ func (this App) Run() {
 		if typ != "" && typ != "http" {
 			this.Log.Warning("Wrong server type: %s. Should be one of: (http, fcgi). Using default type - http", typ)
 		}
-		this.Log.Info("HTTP server, %s:%s", addr, port)
+		this.Log.Info("HTTP server, http://%s:%s", addr, port)
 		http.Serve(l, this.Router)
 	}
 }

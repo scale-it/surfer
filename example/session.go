@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/scale-it/surfer"
+	//"github.com/gorilla/sessions"
 )
 
 type SessionHandler struct {
