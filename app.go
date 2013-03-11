@@ -2,7 +2,6 @@ package surfer
 
 import (
 	"github.com/gorilla/mux"
-	//"github.com/gorilla/sessions"
 	"github.com/kylelemons/go-gypsy/yaml" // yaml parser
 	"github.com/scale-it/clog"            // logger, http://godoc.org/github.com/cratonica/clog
 	"net"
@@ -42,17 +41,17 @@ func New() App {
 func (this App) Run() {
 	addr, err := this.Config.Get("server.addr")
 	if err != nil {
-		this.Log.Fatal("`server.addr` not specified in config file")
+		this.Log.Fatal("'server.addr' not specified in config file")
 		panic(err)
 	}
 	port, err := this.Config.Get("server.port")
 	if err != nil {
-		this.Log.Fatal("`server.port` not specified in config file")
+		this.Log.Fatal("'server.port' not specified in config file")
 		panic(err)
 	}
 	typ, err := this.Config.Get("server.type")
 	if err != nil {
-		this.Log.Warning("`server.type` not specified in config file")
+		this.Log.Warning("'server.type' not specified in config file. Using default type - http")
 	}
 	listenAddr := net.JoinHostPort(addr, port)
 	l, err := net.Listen("tcp", listenAddr)
@@ -62,15 +61,12 @@ func (this App) Run() {
 	this.listener = l
 
 	switch typ {
-	case "http":
-		this.Log.Info("HTTP server, %s:%s", addr, port)
-		http.Serve(l, this.Router)
 	case "fcgi":
 		this.Log.Info("FCGI server, %s:%s", addr, port)
 		fcgi.Serve(l, this.Router)
 	default:
-		if typ != "" {
-			this.Log.Warning("Wrong server type: %s. Using HTTP", typ)
+		if typ != "" && typ != "http" {
+			this.Log.Warning("Wrong server type: %s. Should be one of: (http, fcgi). Using default type - http", typ)
 		}
 		this.Log.Info("HTTP server, %s:%s", addr, port)
 		http.Serve(l, this.Router)
