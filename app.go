@@ -3,7 +3,7 @@ package surfer
 import (
 	"github.com/gorilla/mux"
 	"github.com/kylelemons/go-gypsy/yaml" // yaml parser
-	"github.com/scale-it/clog"            // logger, http://godoc.org/github.com/cratonica/clog
+	"github.com/scale-it/go-log"
 	"net"
 	"net/http"
 	"net/http/fcgi"
@@ -13,7 +13,7 @@ import (
 type App struct {
 	Config   *yaml.File
 	Router   *mux.Router
-	Log      *clog.Clog
+	Log      *log.Logger
 	listener net.Listener
 }
 
@@ -26,15 +26,14 @@ func New() App {
 		panic(err)
 	}
 	log_level, err := config.Get("log_level")
-	level, err := clog.String2Level(log_level)
+	level, err := log.String2Level(log_level)
 	if err != nil {
 		println("WARNING, ", err.Error())
 	}
-	log := clog.NewClog()
-	log.AddOutput(os.Stdout, level)
+	l := log.NewStd(os.Stderr, level, "", log.Ldate|log.Lmicroseconds, true)
 
-	log.Debug("App initialized")
-	return App{config, mux.NewRouter(), log, nil}
+	l.Debug("App initialized")
+	return App{config, mux.NewRouter(), l, nil}
 }
 
 // Blocks current gorotine and runs web server.
