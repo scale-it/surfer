@@ -90,3 +90,17 @@ func (this WithAuth) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		this.Fallback.ServeHTTP(w, req)
 	}
 }
+
+// Calls the wrapped handler and on panic calls the specified error handler.
+// errH can make some logging or just return:
+//   http.Error(w, fmt.Sprintf("%s", err), http.StatusInternalServerError)
+func PanicHandler(h http.Handler, errH func(http.ResponseWriter, *http.Request, interface{})) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				errH(w, r, err)
+			}
+		}()
+		h.ServeHTTP(w, r)
+	}
+}
