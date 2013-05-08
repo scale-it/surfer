@@ -16,38 +16,9 @@
 package surfer
 
 import (
-	"fmt"
-	"io"
 	"net/http"
 	"strings"
-	"time"
 )
-
-type WithHTTPLogger struct {
-	Writer io.Writer
-	Next   http.Handler
-}
-
-func (this WithHTTPLogger) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	username := ""
-	if req.URL.User != nil {
-		if name := req.URL.User.Username(); name != "" {
-			username = name
-		}
-	}
-	start := time.Now()
-	this.Next.ServeHTTP(w, req)
-	elapsed := float64(time.Since(start)) / float64(time.Millisecond)
-
-	fmt.Fprintf(this.Writer, "%s - %s \"%s %s %s\". Elapsed: %f ms\n",
-		strings.Split(req.RemoteAddr, ":")[0],
-		username,
-		req.Method,
-		req.RequestURI,
-		req.Proto,
-		// status,
-		elapsed)
-}
 
 // Handler which check if request is from canonical host and uses https. Otherwise will
 // redirect to https://<canonicalhost>/rest/of/the/url

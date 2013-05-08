@@ -13,17 +13,18 @@
  * limitations under the License.
  */
 
-// open http://0.0.0.0:8000/index and http://0.0.0.0:8000/log/index and http://0.0.0.0:8000/log/other
+// open http://0.0.0.0:8000/ and http://0.0.0.0:8000/log and http://0.0.0.0:8000/log/other
 // to see efects
 package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/fiorix/go-web/httpxtra"
 	"github.com/scale-it/go-log"
 	"github.com/scale-it/surfer"
 	"net/http"
 	"os"
+	"time"
 )
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,18 +32,18 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello, world", counter)
 }
 
-var logger = log.New()
+var logger *log.Logger = log.New()
 var counter int
 
 func main() {
 	logger.AddHandler(os.Stderr, log.Levels.Trace, log.TimeFormatter{"Request"})
 
-	// here we use mux from gorilla web toolkit
-	r := mux.NewRouter()
-	r.HandleFunc("/log/index", IndexHandler)
-
-	// here we use buildin MUX and chain gorilla router wrapped by WithHTTPLogger
-	http.Handle("/log/", surfer.WithHTTPLogger{logger, r})
-	http.HandleFunc("/index", IndexHandler)
+	// here we use httpxtra, which preserve status code and support logger function.
+	http.Handle("/log", httpxtra.Handler{
+		Logger: func(req *http.Request, created time.Time, status, bytes int) {
+			surfer.LogRequest(logger, req, created, status, bytes)
+		},
+		Handler: http.HandlerFunc(IndexHandler)})
+	http.HandleFunc("/", IndexHandler)
 	http.ListenAndServe(":8000", nil)
 }
